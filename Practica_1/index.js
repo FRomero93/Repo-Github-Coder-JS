@@ -12,3 +12,6 @@ console.log("id usuario: " + usuario);
 alert("Le damos la bienvenida ¡" + nombre + " " + apellido + "!");
 alert("Su usuario es: " + usuario);
 
+let direccion = prompt("Ingrese su direccion...");
+console.log("direccion guardada");
+
