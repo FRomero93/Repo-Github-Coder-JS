@@ -8,12 +8,12 @@ const precioZapatillas = 10025;
 alert("Le damos la Bienvenida al sistema de compra");
 do{
     console.log("Elija una opcion:");
-    console.log("1)Ver Precios");
+    console.log("1)Ver Precios 💲");
     console.log("2)Comprar Remera 👕");
     console.log("3)Comprar Pantalon 👖");
     console.log("4)Comprar Zapatillas 👟");
-    console.log("5)Ver Carrito");
-    console.log("0)Salir");
+    console.log("5)Ver Carrito 🛒");
+    console.log("0)Salir ");
     opcion = Number(prompt("Ingrese una opcion:"));
     
     switch (opcion) {
