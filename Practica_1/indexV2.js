@@ -9,7 +9,6 @@ const precioPantalon = 8975;
 const precioZapatillas = 10025;
 
 
-
 function registro(){
     let age;
     let user = "";
@@ -140,3 +139,5 @@ if(total != 0){
     alert("Ticket de " + usuario + ": \n" +  carrito +  "--------------------" + "\n Total a pagar: $" + total);
 }
 alert("Adios y Gracias... 🙂");
+                
+                
