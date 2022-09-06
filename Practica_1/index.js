@@ -1,18 +1,66 @@
 console.log("Inicia sistema de compras online...\n");
 
 let usuario = "";
-let carrito = "";
-let total = 0;
 let opcion = 0;
-const precioRemera = 5750;
-const precioPantalon = 8975;
-const precioZapatillas = 10025;
 
+/*
+*** Clases ***
+*/
+class Articulo {
+    constructor(id, description, price) {
+        this.id = id;
+        this.description = description;
+        this.price = price;
+    }
+}
 
+class Cliente {
+    constructor(id,name,lastname,age){
+        this.id = id;
+        this.name = name;
+        this.lastname = lastname;
+        this.age = age;
+        this.carritoCliente = [];
+        this.totalCompra = 0;
+        
+    }    
+    sumarAlTotal(precio){
+        this.totalCompra += precio; 
+        console.log("Total: $" + this.totalCompra);
+    }
+    agregarAlCarrito(articulo){
+        this.carritoCliente.push(articulo); 
+        this.carritoCliente.forEach(articulo => console.log("agrego " + articulo.description + " al carrito...")); 
+        this.sumarAlTotal(articulo.price);
+    }
+    verCarrito(data){
+        if(this.totalCompra > 0){
+            let carritoContenido ="";
+            if(data != 0){
+                carritoContenido = "Su carrito contiene: ";
+            }else{
+                carritoContenido = "Ticket de Compra de " + this.id + ":";
+            }
+            this.carritoCliente.forEach(articulo => carritoContenido += "\n" + articulo.description + " $" + articulo.price);
+            carritoContenido += "\n -------------------------- \nTotal a pagar: $" + this.totalCompra;
+            alert(carritoContenido);
+        }else{
+            alert("Debe agregar algo al carrito primero!")
+        }
+    }
+    vaciarCarrito(){
+        this.carritoCliente = [];
+        this.totalCompra = 0;
+        alert("Su carrito fue vaciado");
+    }
+}
 
+/*
+*** Funciones ***
+*/
 function registro(){
     let age;
-    let user = "";
+    let cliente;
     do {
         age = Number(prompt("Ingrese su EDAD"));
         if(isNaN(age)){
@@ -42,7 +90,8 @@ function registro(){
                         alert("Le quedan " + intentos + " intentos mas..." );
                         apellido = prompt("Ingrese su apellido");
                     }else{
-                        user = nombre[0] + apellido[0] + age;
+                        let user = nombre[0] + apellido[0] + age;
+                        cliente = new Cliente(user,nombre,apellido,age);
                         alert("Su usuario es: " + user);
                         age = 0;
                         break;
@@ -54,23 +103,19 @@ function registro(){
             }
         }
     } while (age != 0);
-    
-    return user;
+    return cliente;
 }
 
-function agregarAlCarrito(carrito, objeto, precio){
-    carrito += objeto + " $" + precio + "; \n"; 
-    console.log("Carrito: \n" +  carrito);
-    return carrito;
-}
 
-function sumarAlTotal(total, precio){
-    total += precio; 
-    console.log("Total: $" + total);
-    return total;
-}
-
+/*
+*** Main ***
+*/
 alert("Te damos la Bienvenida al sistema de compra");
+
+const remera = new Articulo(11,"Remera",3350);
+const pantalon = new Articulo(21,"Pantalon",5500);
+const zapatillas = new Articulo(31,"Zapatillas",10250);
+
 do{
     console.log("Elija una opcion:");
     console.log("1)Ver Precios 💲");
@@ -79,55 +124,61 @@ do{
     console.log("4)Comprar Pantalon 👖");
     console.log("5)Comprar Zapatillas 👟");
     console.log("6)Ver Carrito 🛒");
-    console.log("0)Salir");
+    console.log("7)Vaciar Carrito 🗑");
+    console.log("0)Salir 🚪");
     opcion = Number(prompt("Ingrese una opcion:"));
     
     switch (opcion) {
         case 1:
-            alert("Remera $ " + precioRemera + "\n" + "Pantalon $ " + precioPantalon + "\n" + "Zapatillas $ " + precioZapatillas + "\n");
+            alert("Remera $ " + remera.price + "\n" + "Pantalon $ " + pantalon.price + "\n" + "Zapatillas $ " + zapatillas.price + "\n");
             break;
         case 2:
             usuario = registro();
             break;
         case 3:
-            if(usuario != ""){
-                carrito = agregarAlCarrito(carrito, "Remera", precioRemera); 
-                total = sumarAlTotal(total,precioRemera);
+            if(usuario.id != ""){
+                usuario.agregarAlCarrito(remera);
                 alert("Compro Remera 💲");
             }else{
-                console.log("No se ecuentra en el registro...");
+                console.log("No se encuentra en el registro...");
                 alert("Debe REGISTRARSE primero");
             }
             break;
         case 4:
-            if(usuario != ""){
-                carrito = agregarAlCarrito(carrito, "Pantalon", precioPantalon); 
-                total = sumarAlTotal(total,precioPantalon);
+            if(usuario.id != ""){
+                usuario.agregarAlCarrito(pantalon);
                 alert("Compro Pantalon 💲");
             }else{
-                console.log("No se ecuentra en el registro...");
+                console.log("No se encuentra en el registro...");
                 alert("Debe REGISTRARSE primero");
             }
             break;
         case 5:
-            if(usuario != ""){
-                carrito = agregarAlCarrito(carrito, "Zapatillas", precioZapatillas); 
-                total = sumarAlTotal(total,precioZapatillas);
+            if(usuario.id != ""){
+                usuario.agregarAlCarrito(zapatillas);
                 alert("Compro Zapatillas 💲");
             }else{
-                console.log("No se ecuentra en el registro...");
+                console.log("No se encuentra en el registro...");
                 alert("Debe REGISTRARSE primero");
             }
             break;
         case 6:
-            if(usuario != ""){
-                if(total != 0){                
-                    alert("Su carrito contiene: \n" +  carrito);
+            if(usuario.id != ""){
+                if(usuario.total != 0){                
+                   usuario.verCarrito(opcion);
                 }else{
                     alert("Debe comprar algo primero");
                 }   
             }else{
-                console.log("No se ecuentra en el registro...");
+                console.log("No se encuentra en el registro...");
+                alert("Debe REGISTRARSE primero");
+            }
+            break;
+        case 7:
+            if(usuario.id != ""){
+                usuario.vaciarCarrito();
+            }else{
+                console.log("No se encuentra en el registro...");
                 alert("Debe REGISTRARSE primero");
             }
             break;
@@ -136,7 +187,7 @@ do{
     }
 } while (opcion != 0);
 
-if(total != 0){
-    alert("Ticket de " + usuario + ": \n" +  carrito +  "--------------------" + "\n Total a pagar: $" + total);
+if(usuario != null && usuario.totalCompra > 0){
+    usuario.verCarrito(opcion);
 }
 alert("Adios y Gracias... 🙂");
