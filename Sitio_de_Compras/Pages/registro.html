@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">  
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>Proyecto JS - SitioDeCompras.com</title>
+        <link rel="icon" type="image/x-icon" href="../Pics/Logo.jpg" />
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
+        <link rel="stylesheet" href="../css/styles.css">
+    </head>
+    <body class = mi-body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container px-4 px-lg-5">
+                <a class="navbar-brand" href="#!">SitioDeCompras.com</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+                        <!--
+                        <li class="nav-item"><a class="nav-link active" aria-current="page" href="#!">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#!">About</a></li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Shop</a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="#!">All Products</a></li>
+                                <li><hr class="dropdown-divider" /></li>
+                                <li><a class="dropdown-item" href="#!">Popular Items</a></li>
+                                <li><a class="dropdown-item" href="#!">New Arrivals</a></li>
+                            </ul>
+                        </li>
+                    -->
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <!-- Header-->
+        <header class="bg-dark py-4">
+            <div class="container px-4 px-lg-5 my-5">
+                <div class="text-center text-white">
+                    <h1 class="display-4 fw-bolder">SitioDeCompras.com</h1>
+                </div>
+            </div>
+        </header>
+        <!-- Section-->
+        <section id="main-content" class="mi-main-content">
+            <div id="divA"  class="mi-div">
+                <div class="mi-box1">
+                    <h2 class="h2">REGISTRO</h2>
+                    <form method="GET" action="./index.html" onsubmit="return registro()">
+                    <div class="mi-box2">
+                        <label for="fname" class="label" >Nombre:</label><br>
+                        <input type="text" id="fname" class="mi-input" placeholder="Ingrese su Nombre"><br><br>
+                        <label for="lname" class="label">Apellido:</label><br>
+                        <input type="text" id="lname" class="mi-input" placeholder="Ingrese su Apellido"><br><br>
+                        <label for="lname" class="label">Edad:</label><br>
+                        <input type="text" id="age" class="mi-input" placeholder="Ingrese su Edad"><br><br>
+                    </div>  
+                    <div class="mi-botonera">
+                        <input type="button" class="mi-button cancelar" id="btnCancelar" value="Cancelar">
+                        <input type="submit" class="mi-button aceptar" id="btnAceptar" value="Aceptar">
+                    </div> 
+                </form> 
+            </div>
+        </div>
+    </section>
+    <!-- Footer -->
+    <footer class="py-3 bg-dark">
+        <div class="container"><p class="m-0 text-center text-white">&copy; 2022 SitioDeCompras.com</p></div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../JS/scripts.js"></script>
+</body>
+
+</html>
