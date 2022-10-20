@@ -1,4 +1,3 @@
-console.log("Inicia sistema de compras online...\n");
 let usuario;
 let id = 1000;
 let texto;
@@ -26,40 +25,16 @@ class Cliente {
     }    
     sumarAlTotal(precio){
         this.totalCompra += precio; 
-        console.log("Total: $" + this.totalCompra);
     }
     agregarAlCarrito(articulo){
         this.carritoCliente.push(articulo); 
-        console.log("agrego " + articulo.description + " al carrito...");
         this.sumarAlTotal(articulo.price);
-    }
-    verCarrito(data){
-        console.log("TOTAL: " + this.totalCompra);
-        if(this.totalCompra > 0){
-            let carritoContenido ="";
-            if(data != 0){
-                carritoContenido = "Su carrito contiene: ";
-            }else{
-                carritoContenido = "Ticket de Compra de " + this.id + ":";
-            }
-            this.carritoCliente.forEach(articulo => carritoContenido += "\n" + articulo.description + " $" + articulo.price);
-            carritoContenido += "\n -------------------------- \nTotal a pagar: $" + this.totalCompra;
-            alert(carritoContenido);
-            return carritoContenido;
-        }else{
-            alert("Debe agregar algo al carrito primero!")
-        }
     }
     contarArticulos(){
         const totalArticulos = this.carritoCliente.length
         return totalArticulos;
     }
-    vaciarCarrito(){
-        this.carritoCliente = [];
-        this.totalCompra = 0;
-        alert("Su carrito fue vaciado");
-    }
-    eliminarArticulo(){
+    eliminarArticulo(){ 
         let eleccion;
         do {
             if(this.carritoCliente.length <= 0){
@@ -81,7 +56,6 @@ class Cliente {
                     for(let j = 0; j < this.carritoCliente.length; j++){
                         if(j+1 == eleccion){
                             idArticulo = this.carritoCliente[j].id;
-                            console.log("articulo " + idArticulo);
                         }
                     }
                     this.carritoCliente = this.carritoCliente.filter(articulo => articulo.id  != idArticulo);
@@ -100,74 +74,168 @@ class Cliente {
 /*
 *** Funciones ***
 */
+
+//Realiza valida los datos ingresados en el formulario del registro. Al finalizar lo sube al LocalStorage
 function registro(){
+    let form = document.querySelector("#formulario");
     let age = document.getElementById("age").value;
     let name = document.getElementById("fname").value;
     let lastname = document.getElementById("lname").value;
     let cliente;
-    let valido = false;
 
     if(age == "" || isNaN(age)){
-        alert("Debe ingresar una Edad valida");
-        valido = false;
+        Swal.fire({
+            position: 'center',
+            icon: 'error',
+            title: 'Debes ingresar una Edad valida',
+            showConfirmButton: true,
+          });
     } 
     else if (name == "" || !isNaN(name)) {
-        alert("Debe ingresar un Nombre valido");
-        valido = false;
+        Swal.fire({
+            position: 'center',
+            icon: 'error',
+            title: 'Debes ingresar un Nombre valido',
+            showConfirmButton: true,
+          });
     }
     else if (lastname == "" || !isNaN(lastname)) {
-        alert("Debe ingresar un Apellido valido");
-        valido = false;
+        Swal.fire({
+            position: 'center',
+            icon: 'error',
+            title: 'Debes ingresar un Apellido valido',
+            showConfirmButton: true,
+          });
     }else{
         if(age < 18){
-            alert("Debe ser Mayor de 18 para registrarse");
-            valido = false;
+            Swal.fire({
+                position: 'center',
+                icon: 'error',
+                title: 'Debes ser mayor de 18 para registrarte',
+                showConfirmButton: true,
+              });
         }else{
             let user = name[0] + lastname[0] + age;
+            
             cliente = new Cliente(user,name,lastname,age);
             setUserStorage(cliente);
-            valido = true;
-        }
+            
+            Swal.fire({
+                position: 'center',
+                icon: 'success',
+                title: '¡Se ha registrado!',
+                text: 'Su usuario es ' + user,
+                showConfirmButton: true,
+            }).then((result) =>{
+                if(result.isConfirmed){ 
+                    form.submit();
+                }
+            });
+        }     
     }
-   return valido; 
+   return false;
 }
-function comprar(user,itemDesc,idItem){
+//Obtiene los datos del archivo JSON
+function getJSON(){
+    return fetch('../JS/Articulos.json')
+        .then(resp => {return resp.json()})
+            .then(data => {
+                return data;
+            });
+}
+//Busca un item con el nombre del parametro dentro del listado JSON y lo retorna en caso de encontrarlo
+function getItemJSON(itemDescription){
+    let itemsJson
+     getJSON().then((data) => {
+        itemsJson = JSON.stringify(data)
+        itemsJson = JSON.parse(itemsJson);
+        
+        let item = itemsJson.find(item => item.description.toUpperCase() == itemDescription.toUpperCase());
+        
+        return item;     
+    });
+        
+}
+//Obtiene los datos hay en el archivo JSON 
+async function getJSONAsync(){
+    const resp = await fetch('../JS/Articulos.json');
+    const data = await resp.json();
+
+    return data;
+    /*
+    const datalocal = JSON.stringify(data);
+    localStorage.setItem("items", datalocal);
+    */
+}
+//Busca dentro de un JSON lo datos del articulo solicitado, filtrando por la descripcion del articulo, la cual es pasada como parametro
+async function getItemJSONAsync(itemDescription){
+    let itemsJson = JSON.stringify(await getJSONAsync());
+    itemsJson = JSON.parse(itemsJson);
+    let itemReturn = itemsJson.find(item => item.description.toUpperCase() == itemDescription.toUpperCase());
+    return itemReturn;    
+    
+    //const items = JSON.parse(itemsJson); 
+    //const items2 = JSON.parse(localStorage.getItem("items"));   
+}
+async function setItem(idItem,itemDesc)
+{
+    let articuloJSON = await getItemJSONAsync(itemDesc);
+    let articuloComprado = new Articulo(idItem, articuloJSON.description, articuloJSON.price);
+
+    return articuloComprado;
+}
+//Agrega al carrito el articulo con el nombre pasado como parametro
+async function comprar(user,itemDesc){
     if(user != null){
-        let ArticuloComprado;
-        switch (itemDesc) {
-            case "remera":
-                ArticuloComprado = new Articulo(idItem,"Remera",3350);
-                break;
-            case "pantalon":
-                ArticuloComprado = new Articulo(idItem,"Pantalon",5500);
-                break;
-            case "zapatillas":
-                ArticuloComprado = new Articulo(idItem,"Zapatillas",10250);
-                break;
-        } 
+        //let userTest = getUserStorage();
+        let idItem
+        idItem = getIdItemStorage(idItem);
+        let articuloComprado = await setItem(idItem,itemDesc);
         idItem++;
         setIdItemStorage(idItem);
-
-        user.agregarAlCarrito(ArticuloComprado);
+        user.agregarAlCarrito(articuloComprado);
         totalItemsCarrito(user);
-
         setCartStorage(user.id, user.carritoCliente);
+        
+        Swal.fire({
+            position: 'center',
+            icon: 'success',
+            title: '¡Has agregado ' + articuloComprado.description + ' al carrito!',
+            showConfirmButton: true,
+        });
 
-        alert("Usted agrego al carrito " + ArticuloComprado.description + " 💲");    
     }else{
-        console.log("No se encuentra en el registro...");
-        alert("Debe REGISTRARSE primero");
+        Swal.fire({
+            position: 'center',
+            icon: 'info',
+            title: '¡Debes registrarte primero!',
+            showConfirmButton: true,
+        });
+
     }
-    return idItem;
 }
-function mostrarCarritoUsuario(user){
-    if(user != null){
-        user.total != 0 ? user.verCarrito(opcion) : alert("Debe comprar algo primero");
-    }else{
-        console.log("No se encuentra en el registro...");
-        alert("Debe REGISTRARSE primero");
-    }
-}   
+//Disara un pop up con el ticket del usuario
+function contenidoCarritoUsuario(user){
+    let carritoContenido ="";
+    if(user.totalCompra > 0){
+            carritoContenido = "Ticket de Compra de " + user.id + ":";
+            user.carritoCliente.forEach(articulo => carritoContenido += "\n" + articulo.description + " $" + articulo.price);
+            carritoContenido += "\n -------------------------- \nTotal a pagar: $" + user.totalCompra;
+            Swal.fire({
+                position: 'center',
+                icon: 'info',
+                title: carritoContenido,
+                showConfirmButton: true,
+            }).then((isOK) => {
+                if(isOK.isConfirmed){
+                    localStorage.clear();
+                    window.location.reload();
+                }
+            });
+        }
+        return carritoContenido;
+}
+//Calcula la cantidad de articulos en el carrito y lo muestra en el boton del mismo 
 function totalItemsCarrito(user){;
     let cantidadCarrito = document.getElementById("cantArt");
     cantidadCarrito != null ? cantidadCarrito.innerText = user.contarArticulos() : null;
@@ -192,11 +260,7 @@ function getUserStorage(){
     if(userReg != null){
         auxUser = new Cliente(userReg.id,userReg.name,userReg.lastname,userReg.age);
         auxUser.carritoCliente = getCartStorage(auxUser);
-        for(item of auxUser.carritoCliente){
-            auxUser.totalCompra += item.price;
-        }
-        texto = document.getElementById("userHeader");
-        texto != null ? texto.innerHTML = `¡Te damos la bienvenida ${auxUser.name}!`: null;
+        auxUser.totalCompra = auxUser.carritoCliente.reduce((total, item) => {return total + item.price;}, auxUser.totalCompra);
     }
     return auxUser;
 }
@@ -215,24 +279,31 @@ function setIdItemStorage(id){
     idJSON = JSON.stringify(id);
     localStorage.setItem("id", idJSON);
 }
-function deleteCartItem(row,idButtom){
+//Setea una mensaje de bienvenida si el usuario se registro
+function setBienvenida(user){
+    pBienvenida = document.getElementById('pBievenida');
+    if(pBienvenida == null){
+        header = document.getElementById("idHeader");
+        texto = document.createElement("p");
+        texto.setAttribute('id','pBienvenida');
+        texto.innerText = `¡Te damos la bienvenida ${user.name}!`;
+        texto.classList.add("display-6");
+        texto.classList.add("fw-bolder");
+        header != null ? header.appendChild(texto) : null;
+    }
+}
+//Quita los items seleccionados del carrito del usuario. Se le pasan como parametros la fila y el id del boton que se pulso
+function borrarItemCarrito(row,idButtom){
     const userStorage = getUserStorage();
-    userStorage.carritoCliente = userStorage.carritoCliente.filter(item => item.id  != idButtom);
-    userStorage.carritoCliente.forEach(item => console.log("item " + item.id +" "+ item.description ));
-    userStorage.totalCompra = 0;
-    userStorage.carritoCliente.forEach(item =>  userStorage.totalCompra += item.price);
-
-    console.log(idButtom);
-
-    setCartStorage(userStorage.id, userStorage.carritoCliente);
-    
-    deleteRow(row);
-}
-function deleteRow(row){
-    let index = row.parentNode.parentNode.rowIndex;
     let tabla = document.getElementById("tablaCarrito");
+    let index = row.parentNode.parentNode.rowIndex;
+    
     tabla.deleteRow(index);
+    
+    userStorage.carritoCliente = userStorage.carritoCliente.filter(item => item.id  != idButtom);
+    setCartStorage(userStorage.id, userStorage.carritoCliente);
 }
+//Genera una tabla con los items en la lista del usuario guardados en el local Storage
 function verCarritoUsuario(){
     const userStorage = getUserStorage();
     let tablaCarrito = document.getElementById("tablaCarrito");
@@ -256,20 +327,20 @@ function verCarritoUsuario(){
         trH.appendChild(tdH2);
         trH.appendChild(tdH3);
         tbdy.appendChild(trH);
-
+        
         for(const item of userStorage.carritoCliente){
             var tr = document.createElement('tr');
             var td1= document.createElement('td');
             var td2= document.createElement('td');
             var td3= document.createElement('td');
-  
+            
             tr.classList.add("mi-table-row");
             td1.classList.add("mi-table-data");
             td1.innerText = `${item.id}`;
             td2.classList.add("mi-table-data");
             td2.innerText = `${item.description}`;
             td2.classList.add("mi-table-data");
-            td3.innerHTML = `<button class="boton-articulo" onclick= 'deleteCartItem(this,${item.id})' id=${item.id}>Quitar</button>`;
+            td3.innerHTML = `<button class="boton-articulo" onclick= 'borrarItemCarrito(this,${item.id})' id=${item.id}>Quitar</button>`;
             
             tr.appendChild(td1);
             tr.appendChild(td2);
@@ -277,42 +348,90 @@ function verCarritoUsuario(){
             tbdy.appendChild(tr);
         }
         tablaCarrito.appendChild(tbdy);
-        console.dir(tablaCarrito);
     }     
 }
+//Redirige a la pagina "carrito" si el usuario agrego articulos al carrito
 function irACarrito(user){
     if(user != null){
         if(user.totalCompra != 0){              
             window.location.href="./carrito.html";
             verCarritoUsuario();
         }else{
-            alert("Debe comprar algo primero");
+            Swal.fire({position: 'center',icon: 'info',title: '¡Debes comprar algo primero!',showConfirmButton: true,});
         }   
     }else{
-        console.log("No se encuentra en el registro...");
-        alert("Debe REGISTRARSE primero");
+        Swal.fire({position: 'center',icon: 'info',title: '¡Debes registrarte primero!',showConfirmButton: true,});
     }
 }
+//Finaliza la sesion eleminando los datos guardados en el Local Storage y recargando la pagina
 function salir(user){
-    if(user != null && user.totalCompra > 0){
-        user.verCarrito(0);
-        /*
-        let ticket
-        let division = document.createElement("div");
-        let modal2 = document.getElementById('modalBody');
-        division.innerHTML = `<p>${ticket}</p>`;
-        console.dir(modal2);
-        modal2.appendChild(division);
-        */
-        console.log("Finalizo sistema de compras online...");      
-    }else{
-        console.log("Finalizo sistema de compras online...");
-        alert("Adios y Gracias 🙂");
-    }
-    localStorage.clear();
-    window.location.reload();
+    Swal.fire({
+        position: 'center',
+        icon: 'question',
+        title: '¿Desea salir a pagar?',
+        showConfirmButton: true,
+        showDenyButton: true,
+        confirmButtonText: 'Si',
+        CancelButtonText: 'No',
+    }).then((result) => {
+        if(result.isConfirmed === true){
+            if(user != null && user.totalCompra > 0){
+                contenidoCarritoUsuario(user);   
+            }else{
+                Swal.fire({
+                    position: 'center',
+                    icon: 'success',
+                    title: 'Adios y Gracias 🙂',
+                    showConfirmButton: true,
+                }).then((isOk) =>{
+                    if(isOk.isConfirmed){
+                        localStorage.clear();
+                        window.location.reload();
+                    }
+                });
+            }
+        }  
+    });              
 }
+//Genera una carta articulo y la agrega al index. Para esto recibe como parametros su id, el precio, el nombre del articulo y na imagen del mismo. Tambien recibe el usurio para utilizar la funcion de agregar
+function setCardItem(user,idItem,precioItem,itemDescripcion,imagen){
+    let cardRow = document.querySelector('#cardRow'); 
+    let idBoton = "btn"+ itemDescripcion;
 
+    if (!!cardRow){
+        let carta = document.createElement('div');
+        carta.innerHTML = `
+        <div class="col mb-5">
+            <div class="card h-100">
+                <img class="mi-img img .card-img-top" src="${imagen}" alt="..." />
+                <div class="card-body p-4">
+                    <div class="text-center">
+                        <h5 class="fw-bolder">${itemDescripcion}</h5>
+                        $${precioItem}
+                    </div>
+                    <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                    </div>
+                    <div class="text-center">
+                        <button id='${idBoton}' class="boton-articulo" >Agregar</button>
+                    </div>
+                </div>
+            </div>
+        </div>`
+        carta.onclick = function(){comprar(user,itemDescripcion,idItem)}
+        cardRow.appendChild(carta);
+        //onclick= 'comprar(${JSON.stringify(user)},this.id,${idItem})'
+        // const boton = document.getElementById(idBoton);
+        // return boton;
+    }
+
+}
+//Obtiene todos los Item dentro del archivo JSON y les genera su carta de item
+async function getItemsJSONAsyncCards(user,idItem){
+    let itemsJson = JSON.stringify(await getJSONAsync());
+    itemsJson = JSON.parse(itemsJson);
+    itemsJson.forEach(item => setCardItem(user,idItem,item.price,item.description,item.pic));
+
+}
 /*
 *** Main ***
 */
@@ -321,17 +440,20 @@ const btnAceptar = document.getElementById("btnAceptar");
 const btnCancelar = document.getElementById("btnCancelar");
 const btnCarrito = document.getElementById("btnCarrito");
 const btnMenu = document.getElementById("btnMenu");
-const btnRemera = document.getElementById("btnRemera");
-const btnPantalon = document.getElementById("btnPantalon");
-const btnZapatillas = document.getElementById("btnZapatillas");
 const btnSalir = document.getElementById("btnSalir");
+// const btnRemera = document.getElementById("btnRemera");
+// const btnPantalon = document.getElementById("btnPantalon");
+// const btnZapatillas = document.getElementById("btnZapatillas");
 
-id = getIdItemStorage(id);
+setIdItemStorage(id)
+//id = getIdItemStorage(id);
 user1 = getUserStorage();
 
 if (user1 != null){
+    getItemsJSONAsyncCards(user1,id); 
     verCarritoUsuario(user1);
     totalItemsCarrito(user1);
+    setBienvenida(user1);
 } 
 
 /*
@@ -352,18 +474,18 @@ if(btnCarrito != null){
 if(btnMenu != null){
     btnMenu.onclick = () => window.location.href="./index.html";
 }
-if(btnRemera != null){
-    btnRemera.onclick = () => id = comprar(user1,"remera",id);
-}
-if(btnPantalon != null){
-    btnPantalon.onclick = () => id = comprar(user1,"pantalon",id);
-}
-if(btnZapatillas != null){
-    btnZapatillas.onclick = () => id = comprar(user1,"zapatillas",id);
-}
 if(btnSalir != null){
     btnSalir.onclick = () => salir(user1);
 }
+// if(btnRemera != null){
+//     btnRemera.onclick = () => comprar(user1,"Remera",id);
+// }
+// if(btnPantalon != null){
+//     btnPantalon.onclick = () => comprar(user1,"pantalon",id);
+// }
+// if(btnZapatillas != null){
+//     btnZapatillas.onclick =  () => comprar(user1,"zapatillas",id);
+// }
 
 // /////////////////////***  MODAL ***//////////////////////////////
 // // Get the modal

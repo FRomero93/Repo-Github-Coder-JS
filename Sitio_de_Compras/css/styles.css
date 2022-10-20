@@ -66,6 +66,13 @@
 /******************************************************************************************************************************************************/
 /*************************************************************** MIS CLASES ***************************************************************************/
 /******************************************************************************************************************************************************/
+.py-3v2 {
+  padding-top: 1rem !important;
+  padding-bottom: 1rem !important;
+  position: fixed;
+  bottom: 0;
+  width: 100%; 
+}
 .mi-body{
   background-image: url("../Pics/fondoBody.jpg");
 }
@@ -77,14 +84,10 @@
   top: 0;
   left: 0;
   width: 100%;
-  margin-bottom: 50px;
+  margin-bottom: auto;
 }	
 .mi-main-content {
-  background: whitesmoke;
-  margin: 125px auto;
-  box-shadow: 0 0 10px rgba(0,0,0,.1);
-  max-width: fit-content;
-  max-height: fit-content;
+ text-align: center;
 }
 .mi-main-footer {
   background: #333;
@@ -106,41 +109,31 @@
 
 /* DIV */
 .mi-div {
-  margin-top: auto;
+  text-align: center;
+  margin: 0px auto;
 }
 .mi-div .mi-box1 {
   border: 3px solid black;
-  padding: 20px;
   background-color: whitesmoke;
   text-align: center;
-  height: max-content;
-  width: 500px;
+  width: 500px; 
+  border-radius: 0.5rem;
+  margin: 0px auto;
+
 }
 .mi-div .mi-box2 {
   text-align: left;
-  padding: 40px;
+  padding: 50px;
   width: 100%;
 }
-.mi-div .mi-box3 {
-  border: 3px solid black;
-  padding: 20px;
-  background-color: whitesmoke;
-  text-align: center;
-  height: 100%;
+.mi-div-header {
+  border: 3px solid #f9fafb4b;
+  background-color: #000;
+  color: #fff;
+  text-align: center;   
   width: 100%;
-}
-.mi-divModal {   
-  text-align: justify;
-  display: flex;
-  align-items: flex-start;
-  text-align: center;
-  border: 3px solid black;
-}
-.mi-divModal .mi-boxModal1 {
-  background-color: whitesmoke;
-  text-align: center;
-  width: 50%;
-  height: 50%; 
+  height: 90px;
+  padding: 30px;
 }
 .mi-box {
   border: 3px solid black;
@@ -153,19 +146,19 @@
   text-align: center;
   width: auto;
   position: relative;
+  padding: 20px;
 }
-.img{
+.mi-img{
   margin:10px auto;
   border-radius:5px;
   border: 1px solid #999;
-  padding:13px;
-  width:220px;
-  height:220px;
+  width:200px;
+  height:200px;
   background-size: 100% 100%;
   background-repeat:no-repeat;
   background-size: cover;
-  }
-.img img{
+}
+.mi-img img{
   width: 100%;
 }
 
@@ -182,19 +175,6 @@
   width: 80%;
   max-width: 400px;
   min-width: auto;
-}
-.mi-button.button1 {
-  background-color: #333;
-  color: white;
-  border: 2px solid #555555;
-}
-.button1:hover {
-  background-color: white;
-  color: black;
-}
-.button1:active {
-  box-shadow: 0 5px #666;
-  transform: translateY(4px);
 }
 .mi-button.aceptar {
   background-color: #1fb433;
@@ -246,19 +226,6 @@
 .boton-articulo:active {
   box-shadow: 0 5px #666;
   transform: translateY(4px);
-}
-
-/* INPUTS */
-.mi-input{
-  width: 100%;
-  height: 30px;
-  left: 30px;
-}
-
-/* LABEL */
-.mi-label {
-  padding: 8px;
-  width: 80%;
 }
 
 /** The Modal */
@@ -2956,7 +2923,7 @@ textarea.form-control-lg {
 }
 
 .form-floating {
-  position: relative;
+  position: flex;
 }
 .form-floating > .form-control,
 .form-floating > .form-select {
@@ -4806,12 +4773,12 @@ textarea.form-control-lg {
 }
 
 .card {
-  position: relative;
+  position: flex;
   display: flex;
   flex-direction: column;
   min-width: 0;
   word-wrap: break-word;
-  background-color: #fff;
+  background-color: whitesmoke;
   background-clip: border-box;
   border: 1px solid rgba(0, 0, 0, 0.125);
   border-radius: 0.25rem;
@@ -7782,15 +7749,12 @@ textarea.form-control-lg {
 
 .py-3 {
   padding-top: 1rem !important;
-  padding-bottom: 1rem !important;
-  position: fixed;
-  bottom: 0;
-  width: 100%; 
+  padding-bottom: 1rem !important; 
 }
 
 .py-4 {
-  padding-top: 1.5rem !important;
-  padding-bottom: 1.5rem !important;
+  padding-top: 2.5rem !important;
+  padding-bottom: 1.0rem !important;
 }
 
 .py-5 {

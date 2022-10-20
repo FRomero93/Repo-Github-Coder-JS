@@ -13,6 +13,9 @@
     <body class = mi-body>
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container px-4 px-lg-5">
+                <div class="navbar-header">
+                    <img class="navbar-toggler-icon" src="../Pics/Logo.jpg" alt="..." />
+                </div>
                 <a class="navbar-brand" href="#!">SitioDeCompras.com</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -35,41 +38,48 @@
             </div>
         </nav>
         <!-- Header-->
-        <header class="bg-dark py-4">
+        <header class="bg-black py-4">
             <div class="container px-4 px-lg-5 my-5">
                 <div class="text-center text-white">
-                    <h1 class="display-4 fw-bolder">SitioDeCompras.com</h1>
+                    <h1 class="display-4 fw-bolder"><img class="navbar-toggler-icon" src="../Pics/Logo_invertido2.jpg" alt="..." /> SitioDeCompras.com</h1>
                 </div>
             </div>
         </header>
         <!-- Section-->
-        <section id="main-content" class="mi-main-content">
-            <div id="divA"  class="mi-div">
-                <div class="mi-box1">
-                    <h2 class="h2">REGISTRO</h2>
-                    <form method="GET" action="./index.html" onsubmit="return registro()">
-                    <div class="mi-box2">
-                        <label for="fname" class="label" >Nombre:</label><br>
-                        <input type="text" id="fname" class="mi-input" placeholder="Ingrese su Nombre"><br><br>
-                        <label for="lname" class="label">Apellido:</label><br>
-                        <input type="text" id="lname" class="mi-input" placeholder="Ingrese su Apellido"><br><br>
-                        <label for="lname" class="label">Edad:</label><br>
-                        <input type="text" id="age" class="mi-input" placeholder="Ingrese su Edad"><br><br>
-                    </div>  
-                    <div class="mi-botonera">
-                        <input type="button" class="mi-button cancelar" id="btnCancelar" value="Cancelar">
-                        <input type="submit" class="mi-button aceptar" id="btnAceptar" value="Aceptar">
-                    </div> 
-                </form> 
+        <section class="py-3">
+            <div class="container px-4 px-lg-5 mt-5">
+                <div id="divA"  class="mi-div">
+                    <div class="mi-box1">
+                        <form id="formulario" method="PUT" action="./index.html" class="form-floating" onsubmit="return registro();">
+                            <div class="mi-div-header">
+                                <h2 class="mb-3">REGISTRO</h2></div>
+                            <div class="mi-box2">
+                                <label for="fname" class="form-label">Nombre:</label>
+                                <input type="text" id="fname" class="form-control" placeholder="Ingrese su Nombre"><br>
+                                <label for="lname" class="form-label">Apellido:</label>
+                                <input type="text" id="lname" class="form-control" placeholder="Ingrese su Apellido"><br>
+                                <label for="age" class="form-label">Edad:</label>
+                                <input type="text" id="age" class="form-control" placeholder="Ingrese su Edad"><br>
+                            </div>  
+                            <div class="mi-botonera">
+                                <button id="btnCancelar" class="btn mi-button cancelar btn-lg"  type="button">
+                                    Cancelar
+                                </button> 
+                                <button id="btnAceptar" class="btn mi-button aceptar btn-lg" type="submit">
+                                    Aceptar
+                                </button>
+                            </div> 
+                        </form> 
+                    </div>
+                </div>
             </div>
-        </div>
-    </section>
-    <!-- Footer -->
-    <footer class="py-3 bg-dark">
-        <div class="container"><p class="m-0 text-center text-white">&copy; 2022 SitioDeCompras.com</p></div>
-    </footer>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../JS/scripts.js"></script>
-</body>
-
+        </section>
+        <!-- Footer -->
+        <footer class="py-3 bg-dark">
+            <div class="container"><p class="m-0 text-center text-white">Copyright&copy; 2022 SitioDeCompras.com</p></div>
+        </footer>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.4.35/dist/sweetalert2.all.min.js"></script>
+        <script src="../JS/scripts.js"></script>
+    </body>
 </html>
