@@ -1,5 +1,4 @@
 let usuario;
-let id = 1000;
 let texto;
 let user1;
 
@@ -7,10 +6,12 @@ let user1;
 *** Clases ***
 */
 class Articulo {
-    constructor(id, description, price) {
+    constructor(id,description,price,amount,priceBase) {
         this.id = id;
         this.description = description;
         this.price = price;
+        this.amount = amount;
+        this.priceBase = priceBase;
     }
 }
 
@@ -24,14 +25,25 @@ class Cliente {
         this.totalCompra = 0;    
     }    
     sumarAlTotal(precio){
-        this.totalCompra += precio; 
+        this.totalCompra += precio;
     }
-    agregarAlCarrito(articulo){
-        this.carritoCliente.push(articulo); 
-        this.sumarAlTotal(articulo.price);
+    agregarAlCarrito(articulo,itemsTotal){
+        if(!!this.carritoCliente.find(item => item.id == articulo.id)){
+            this.carritoCliente.forEach(item => {
+                if(item.id == articulo.id){
+                    item.price += articulo.priceBase * articulo.amount;
+                    item.amount = Number(item.amount) + Number(articulo.amount);
+                } 
+            }); 
+        }else{
+            this.carritoCliente.push(articulo); 
+            this.sumarAlTotal(articulo.priceBase * itemsTotal);
+        }
     }
     contarArticulos(){
-        const totalArticulos = this.carritoCliente.length
+        let cantidadesArticulos = this.carritoCliente.map(item => Number(item.amount));
+        let totalArticulos = cantidadesArticulos.reduce((a,b) => a + b, 0);
+        
         return totalArticulos;
     }
     eliminarArticulo(){ 
@@ -162,41 +174,32 @@ async function getJSONAsync(){
     const data = await resp.json();
 
     return data;
-    /*
-    const datalocal = JSON.stringify(data);
-    localStorage.setItem("items", datalocal);
-    */
 }
 //Busca dentro de un JSON lo datos del articulo solicitado, filtrando por la descripcion del articulo, la cual es pasada como parametro
 async function getItemJSONAsync(itemDescription){
     let itemsJson = JSON.stringify(await getJSONAsync());
     itemsJson = JSON.parse(itemsJson);
     let itemReturn = itemsJson.find(item => item.description.toUpperCase() == itemDescription.toUpperCase());
+   
     return itemReturn;    
-    
     //const items = JSON.parse(itemsJson); 
     //const items2 = JSON.parse(localStorage.getItem("items"));   
 }
-async function setItem(idItem,itemDesc)
+async function setArticulo(itemDesc,itemsTotal)
 {
     let articuloJSON = await getItemJSONAsync(itemDesc);
-    let articuloComprado = new Articulo(idItem, articuloJSON.description, articuloJSON.price);
+    let articuloComprado = new Articulo(articuloJSON.id,articuloJSON.description, articuloJSON.price * itemsTotal, itemsTotal, articuloJSON.price);
 
     return articuloComprado;
 }
 //Agrega al carrito el articulo con el nombre pasado como parametro
-async function comprar(user,itemDesc){
+async function comprar(user,itemDesc,itemsTotal){
     if(user != null){
-        //let userTest = getUserStorage();
-        let idItem
-        idItem = getIdItemStorage(idItem);
-        let articuloComprado = await setItem(idItem,itemDesc);
-        idItem++;
-        setIdItemStorage(idItem);
-        user.agregarAlCarrito(articuloComprado);
+        let articuloComprado = await setArticulo(itemDesc,itemsTotal.innerHTML);
+        user.agregarAlCarrito(articuloComprado,itemsTotal.innerHTML);
         totalItemsCarrito(user);
         setCartStorage(user.id, user.carritoCliente);
-        
+    
         Swal.fire({
             position: 'center',
             icon: 'success',
@@ -211,7 +214,6 @@ async function comprar(user,itemDesc){
             title: '¡Debes registrarte primero!',
             showConfirmButton: true,
         });
-
     }
 }
 //Disara un pop up con el ticket del usuario
@@ -238,46 +240,39 @@ function contenidoCarritoUsuario(user){
 //Calcula la cantidad de articulos en el carrito y lo muestra en el boton del mismo 
 function totalItemsCarrito(user){;
     let cantidadCarrito = document.getElementById("cantArt");
-    cantidadCarrito != null ? cantidadCarrito.innerText = user.contarArticulos() : null;
+    cantidadCarrito != null ? cantidadCarrito.innerText = Number(user.contarArticulos()) : null;
 }
+//Devuelve el carrito del usuario solicitado
 function getCartStorage(user){
     let carritoAux = [];
     const userCart = JSON.parse(localStorage.getItem("carrito" + user.id));
     if(userCart != null){
         for(const art of userCart){
-            carritoAux.push(new Articulo(art.id,art.description,art.price));
+            carritoAux.push(new Articulo(art.id,art.description,art.price,art.amount,art.priceBase));
         }
     }
     return carritoAux;
 }
+//Guarda en el local Storage el carrito del usuario colocado
 function setCartStorage(idUser,cart){
     const compra = JSON.stringify(cart);
     localStorage.setItem("carrito" + idUser, compra);
 }
-function getUserStorage(){
-    const userReg = JSON.parse(localStorage.getItem("idCliente"));
+//Obtiene el usuario guardado en el local Storage
+function getUserStorage(userKey){
+    const userReg = JSON.parse(localStorage.getItem(userKey));
     let auxUser;
     if(userReg != null){
         auxUser = new Cliente(userReg.id,userReg.name,userReg.lastname,userReg.age);
         auxUser.carritoCliente = getCartStorage(auxUser);
-        auxUser.totalCompra = auxUser.carritoCliente.reduce((total, item) => {return total + item.price;}, auxUser.totalCompra);
+        auxUser.totalCompra = auxUser.carritoCliente.reduce((total, item) => {return total + item.price}, auxUser.totalCompra);
     }
     return auxUser;
 }
+//Guarda en el local Storage el usuario
 function setUserStorage(user){
     const enJSON = JSON.stringify(user);
     localStorage.setItem("idCliente", enJSON);
-}
-function getIdItemStorage(id){
-    const idStorage = JSON.parse(localStorage.getItem("id"));
-    if (idStorage != null) {
-        id = idStorage;
-    }
-    return id;
-}
-function setIdItemStorage(id){
-    idJSON = JSON.stringify(id);
-    localStorage.setItem("id", idJSON);
 }
 //Setea una mensaje de bienvenida si el usuario se registro
 function setBienvenida(user){
@@ -293,20 +288,22 @@ function setBienvenida(user){
     }
 }
 //Quita los items seleccionados del carrito del usuario. Se le pasan como parametros la fila y el id del boton que se pulso
-function borrarItemCarrito(row,idButtom){
-    const userStorage = getUserStorage();
+function quitarItemCarrito(row,idButtom){
+    const userStorage = getUserStorage("idCliente");
     let tabla = document.getElementById("tablaCarrito");
+    let totalTabla = document.getElementById('totalTabla');
     let index = row.parentNode.parentNode.rowIndex;
     
-    tabla.deleteRow(index);
-    
-    userStorage.carritoCliente = userStorage.carritoCliente.filter(item => item.id  != idButtom);
+    userStorage.carritoCliente = userStorage.carritoCliente.filter(item => item.id  != idButtom.id);
     setCartStorage(userStorage.id, userStorage.carritoCliente);
+    totalTabla.textContent ='TOTAL: $' + precioTotalArticulos();
+    tabla.deleteRow(index);
 }
 //Genera una tabla con los items en la lista del usuario guardados en el local Storage
 function verCarritoUsuario(){
-    const userStorage = getUserStorage();
+    const userStorage = getUserStorage("idCliente");
     let tablaCarrito = document.getElementById("tablaCarrito");
+    let totalCarrito = 0;
     
     if(tablaCarrito != null){
         var tbdy = document.createElement('tbody');
@@ -314,18 +311,27 @@ function verCarritoUsuario(){
         var tdH1 = document.createElement('td');
         var tdH2 = document.createElement('td');
         var tdH3 = document.createElement('td');
+        var tdH4 = document.createElement('td');
+        var tF = document.createElement('tfoot');
+        var trF = document.createElement('tr');
+        var thF = document.createElement('th');
         
         tbdy.classList.add("mi-table-body");
         trH.classList.add("mi-table-header");
         tdH1.classList.add("header__item");
-        tdH1.innerText += "ID";
+        tdH1.innerText += "Cantidad";
         tdH2.classList.add("header__item");
-        tdH2.innerText += "ARTICULO";
+        tdH2.innerText += "Articulo";
         tdH3.classList.add("header__item");
-        tdH3.innerText += "";
+        tdH3.innerText += "Precio";
+        tdH4.classList.add("header__item");
+        tdH4.innerText += "";
+        thF.setAttribute('id','totalTabla');
+                
         trH.appendChild(tdH1);
         trH.appendChild(tdH2);
         trH.appendChild(tdH3);
+        trH.appendChild(tdH4);
         tbdy.appendChild(trH);
         
         for(const item of userStorage.carritoCliente){
@@ -333,21 +339,31 @@ function verCarritoUsuario(){
             var td1= document.createElement('td');
             var td2= document.createElement('td');
             var td3= document.createElement('td');
+            var td4= document.createElement('td');
             
             tr.classList.add("mi-table-row");
             td1.classList.add("mi-table-data");
-            td1.innerText = `${item.id}`;
+            contadorTabla(td1,td3,thF,item.amount,item.priceBase,item.id);
             td2.classList.add("mi-table-data");
             td2.innerText = `${item.description}`;
             td2.classList.add("mi-table-data");
-            td3.innerHTML = `<button class="boton-articulo" onclick= 'borrarItemCarrito(this,${item.id})' id=${item.id}>Quitar</button>`;
-            
+            td3.innerText = `$${item.price}`;
+            td3.classList.add("mi-table-data");
+            td4.innerHTML = `<button class="boton-articulo" onclick= 'quitarItemCarrito(this, ${item.id})' id=${item.id}>Quitar <i class="bi bi-trash"></i></button>`;
+            totalCarrito +=  item.price;
             tr.appendChild(td1);
             tr.appendChild(td2);
             tr.appendChild(td3);
+            tr.appendChild(td4);
             tbdy.appendChild(tr);
         }
-        tablaCarrito.appendChild(tbdy);
+        thF.innerHTML = `<div>TOTAL: $${totalCarrito}</div>`;
+        tF.classList.add("mi-table-footer");
+        thF.classList.add("mi-table-footer-row");
+        trF.appendChild(thF);
+        tF.appendChild(trF);
+        tablaCarrito.appendChild(tF);
+        tablaCarrito.appendChild(tbdy);        
     }     
 }
 //Redirige a la pagina "carrito" si el usuario agrego articulos al carrito
@@ -394,9 +410,10 @@ function salir(user){
     });              
 }
 //Genera una carta articulo y la agrega al index. Para esto recibe como parametros su id, el precio, el nombre del articulo y na imagen del mismo. Tambien recibe el usurio para utilizar la funcion de agregar
-function setCardItem(user,idItem,precioItem,itemDescripcion,imagen){
+function setCardItem(user,precioItem,itemDescripcion,imagen){
     let cardRow = document.querySelector('#cardRow'); 
     let idBoton = "btn"+ itemDescripcion;
+    let idPrice = "price" + itemDescripcion;
 
     if (!!cardRow){
         let carta = document.createElement('div');
@@ -405,9 +422,9 @@ function setCardItem(user,idItem,precioItem,itemDescripcion,imagen){
             <div class="card h-100">
                 <img class="mi-img img .card-img-top" src="${imagen}" alt="..." />
                 <div class="card-body p-4">
-                    <div class="text-center">
+                    <div id=${idPrice} class="text-center">
                         <h5 class="fw-bolder">${itemDescripcion}</h5>
-                        $${precioItem}
+                        <h5>$${precioItem}</h5>
                     </div>
                     <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
                     </div>
@@ -416,22 +433,117 @@ function setCardItem(user,idItem,precioItem,itemDescripcion,imagen){
                     </div>
                 </div>
             </div>
-        </div>`
-        carta.onclick = function(){comprar(user,itemDescripcion,idItem)}
+        </div>
+        `
         cardRow.appendChild(carta);
-        //onclick= 'comprar(${JSON.stringify(user)},this.id,${idItem})'
-        // const boton = document.getElementById(idBoton);
-        // return boton;
+        let add = document.getElementById(idBoton);
+        let priceSection = document.getElementById(idPrice);
+        let cantidad = contadorCartas(priceSection,1);
+        add.onclick = function(){comprar(user,itemDescripcion,cantidad)};
     }
 
 }
 //Obtiene todos los Item dentro del archivo JSON y les genera su carta de item
-async function getItemsJSONAsyncCards(user,idItem){
+async function getItemsJSONAsyncCards(user){
     let itemsJson = JSON.stringify(await getJSONAsync());
     itemsJson = JSON.parse(itemsJson);
-    itemsJson.forEach(item => setCardItem(user,idItem,item.price,item.description,item.pic));
-
+    itemsJson.forEach(item => setCardItem(user,item.price,item.description,item.pic));
 }
+//Setea el contador de articulos de la tabla con el contenido del carrito ademas de modificar los totales de la misma de acuerdo a las cantidades de articulos en el carrito
+function contadorTabla(elemento,elemento2,elemento3,numeroInicial,precioBase,idItem){
+    let idContador = "cont" + elemento.id;
+    let idRestador = "rest" + elemento.id;
+    let idSumador = "sum" + elemento.id;
+    let div = document.createElement('div');
+    let divCont = document.createElement('div');
+    let btnResta = document.createElement('button');
+    let btnSuma = document.createElement('button');
+    let contador = document.createElement('h4');
+    let numero = numeroInicial;
+    
+    btnResta.setAttribute('id',idRestador);
+    btnSuma.setAttribute('id',idSumador);
+    contador.setAttribute('id',idContador);
+
+    btnSuma.onclick = () => {
+        numero < 99 ? numero++ : null;
+        contador.innerHTML = numero;
+        let ope = numero * precioBase;
+        elemento2.textContent = '$' + ope;
+        const userStorage = getUserStorage("idCliente");
+        userStorage.carritoCliente.forEach(item => {item.id == idItem ? item.price = ope : null});
+        userStorage.carritoCliente.forEach(item => {item.id == idItem ? item.amount = numero : null});
+        setCartStorage(userStorage.id, userStorage.carritoCliente);
+        elemento3.innerHTML =`<div>TOTAL: $${precioTotalArticulos()}</div>`;
+    };
+    btnResta.onclick = () => {
+        numero > 1 ? numero-- : null;
+        contador.textContent = numero;
+        let ope = numero * precioBase;
+        elemento2.textContent = '$' + ope;
+        const userStorage = getUserStorage("idCliente");
+        userStorage.carritoCliente.forEach(item => {item.id == idItem ? item.price = ope : null});
+        userStorage.carritoCliente.forEach(item => {item.id == idItem ? item.amount = numero : null});
+        setCartStorage(userStorage.id, userStorage.carritoCliente);
+        elemento3.innerHTML =`<div>TOTAL: $${precioTotalArticulos()}</div>`;
+    };  
+    contador.innerText = numero;
+    btnResta.innerText = '-';
+    btnSuma.innerText = '+';
+    div.classList.add('mi-div-card-cant');
+    divCont.classList.add('mi-div-cont');
+    div.appendChild(btnResta);
+    divCont.appendChild(contador);
+    div.appendChild(divCont);
+    div.appendChild(btnSuma);
+    elemento.appendChild(div);
+
+    return contador;
+}
+//Setea la cantidad de items a agregar. Se utiliza en las cartas con los articulos.
+function contadorCartas(elemento,numeroInicial){
+    let idContador = "cont" + elemento.id;
+    let idRestador = "rest" + elemento.id;
+    let idSumador = "sum" + elemento.id;
+    let div = document.createElement('div');
+    let divCont = document.createElement('div');
+    let btnResta = document.createElement('button');
+    let btnSuma = document.createElement('button');
+    let contador = document.createElement('h4');
+    let numero = numeroInicial;
+    
+    btnResta.setAttribute('id',idRestador);
+    btnSuma.setAttribute('id',idSumador);
+    contador.setAttribute('id',idContador);
+
+    btnSuma.onclick = () => {
+        numero < 99 ? numero++ : null;
+        contador.textContent = numero;
+    };
+    btnResta.onclick = () => {
+        numero > 1 ? numero-- : null;
+        contador.textContent = numero;
+    };  
+
+    contador.innerText = numero;
+    btnResta.innerText = '-';
+    btnSuma.innerText = '+';
+    div.classList.add('mi-div-card-cant');
+    divCont.classList.add('mi-div-cont');
+    div.appendChild(btnResta);
+    divCont.appendChild(contador);
+    div.appendChild(divCont);
+    div.appendChild(btnSuma);
+    elemento.appendChild(div);
+
+    return contador;
+}
+//Calucula el costo total de los articulos en el carrito del cliente
+function precioTotalArticulos(){
+    let user = getUserStorage("idCliente");
+    return user.totalCompra;
+}
+
 /*
 *** Main ***
 */
@@ -441,16 +553,11 @@ const btnCancelar = document.getElementById("btnCancelar");
 const btnCarrito = document.getElementById("btnCarrito");
 const btnMenu = document.getElementById("btnMenu");
 const btnSalir = document.getElementById("btnSalir");
-// const btnRemera = document.getElementById("btnRemera");
-// const btnPantalon = document.getElementById("btnPantalon");
-// const btnZapatillas = document.getElementById("btnZapatillas");
 
-setIdItemStorage(id)
-//id = getIdItemStorage(id);
-user1 = getUserStorage();
+user1 = getUserStorage("idCliente");
+getItemsJSONAsyncCards(user1); 
 
 if (user1 != null){
-    getItemsJSONAsyncCards(user1,id); 
     verCarritoUsuario(user1);
     totalItemsCarrito(user1);
     setBienvenida(user1);
@@ -477,40 +584,4 @@ if(btnMenu != null){
 if(btnSalir != null){
     btnSalir.onclick = () => salir(user1);
 }
-// if(btnRemera != null){
-//     btnRemera.onclick = () => comprar(user1,"Remera",id);
-// }
-// if(btnPantalon != null){
-//     btnPantalon.onclick = () => comprar(user1,"pantalon",id);
-// }
-// if(btnZapatillas != null){
-//     btnZapatillas.onclick =  () => comprar(user1,"zapatillas",id);
-// }
 
-// /////////////////////***  MODAL ***//////////////////////////////
-// // Get the modal
-// var modal = document.getElementById("myModal");
-// // Get the button that opens the modal
-// const boton = document.getElementById("boton");
-// // Get the <span> element that closes the modal
-// var span = document.getElementsByClassName("close")[0];
-// // When the user clicks the button, open the modal 
-
-// if(boton !=null){
-//     boton.onclick = function() {
-//         modal.style.display = "block";
-//     }
-// }
-// // When the user clicks on <span> (x), close the modal
-// if(span != null){
-//     span.onclick = function() {
-//       modal.style.display = "none";
-//     }
-// }
-// // When the user clicks anywhere outside of the modal, close it
-// window.onclick = function(event) {
-//   if (event.target == modal) {
-//     modal.style.display = "none";   
-//   }
-// }
-// ///////////////////////////////////////////////////////////////

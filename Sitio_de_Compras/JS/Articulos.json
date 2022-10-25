@@ -1,25 +1,19 @@
 [{
-        "id":"",
+        "id":"r001",
         "description":"Remera",
         "price": 6000,
         "pic": "../Pics/Remera.jpg"
     },
     {
-        "id":"",
+        "id":"p001",
         "description":"Pantalon",
         "price": 8500,
         "pic": "../Pics/Pantalon2.jpg"
     },
     {
-        "id":"",
+        "id":"z001",
         "description":"Zapatillas",
         "price": 13500,
-        "pic": "../Pics/Zapatillas.jpg"
-    },
-    {
-        "id":"",
-        "description":"Zapatillas2",
-        "price": 16500,
         "pic": "../Pics/Zapatillas.jpg"
     }
 ]
